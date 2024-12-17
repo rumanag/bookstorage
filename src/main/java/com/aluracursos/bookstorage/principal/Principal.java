@@ -6,12 +6,12 @@ import com.aluracursos.bookstorage.repository.RepositoryLibro;
 import com.aluracursos.bookstorage.service.ConsumoAPI;
 import com.aluracursos.bookstorage.service.ConvierteDatos;
 import org.springframework.dao.DataIntegrityViolationException;
-
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static java.lang.Integer.parseInt;
-
 
 public  class Principal {
 
@@ -32,32 +32,30 @@ public  class Principal {
 
     public void muestraElMenu() {
 
-        var opcion = -1;
-        while(opcion !=0){
+        Integer opcion =-1;
+        while(opcion != 0){
+                System.out.println(
+                """
+                                            MENU DE OPCIONES
+                1. Busca el libro en el índice Gutembert y lo ingresa a la base de datos, si no está.
+                2. Consulta los libros de  la base de datos.
+                3. Consulta de libros por idioma, en la base de datos.
+                4. Muestra los libros mas descargados.
+                5. Muestra las descripciones de los libros de la de la base de datos.
+                6. Consulta los autores registrados en la base de datos.
+                7. Consulta los libros de la base de datos, por autor.
+                8. los autores vivos en un año específico.
 
-            var menu = """
-             
-                                MENU DE OPCIONES
-                                        
-            1. Busca el libro en el índice Gutembert y lo ingresa a la base de datos si no está
-            2. Consulta los libros de  la base de datos
-            3. Consulta los autores registrados en la base de datos.
-            4, Consulta de libros por idioma, en la base de datos.
-            5. Consultar los autores vivos en un año específico.
-            6. Muestra los libros mas descargados 
-            7. Muestra las descripciones de los libros de la de la base de datos
-            8. lista autores vivos en un año específico
-                 
-            0. Salir     
-            """;
+                0. Salir.
+                """);
 
-            System.out.println(menu);
-            String menuOpciones = teclado.nextLine();
+
+            var menuOpcion = teclado.nextLine();
+
             try {
-                opcion = parseInt(menuOpciones);
+                opcion = parseInt(menuOpcion);
             }catch (NumberFormatException e){
                 System.out.println("´POR FAVOR INGRESE UN VALOR NUMERICO");
-                continue;
             }
 
             switch (opcion) {
@@ -68,39 +66,47 @@ public  class Principal {
                     consultaLIbrosDeLaDB();
                     break;
                 case 3:
-                     ConsultaAutoresDeLaBD();
-                     break;
-
-
-
-
-                case 4:
                      buscarIdioma();
                      break;
+                case 4:
+                     topDescargas();
+                     break;
                 case 5:
-                     AutoresVivosEnAño();
-                     break;
-                case 6:
-                    topDescargas();
-                     break;
-                case 7:
                      descripcionLlibros();
                      break;
+                case 6:
+                    consultaAutoresDeLaBD();
+
+                     break;
+                case 7:
+                     consultaLibrosPorAutor();
+                     break;
+                case 8:
+                    findAutoresByAnio();
+                     break;
                 case 0:
-                    //System.out.println("... Saliendo del programa ... ");
                      break;
                 default:
                     System.out.println("DIGITÓ UNA OPCION INCORRECTA");
+                    break;
             }
         }
     }
 
-    // obtiene el libro de Gutendex
+    // A. SERVICIO: OBTIENE EL LIBRO ESCOGIDO DE Gutendex
     private DatosLibros getDatosLibros() {
 
         System.out.print("Escribe el nombre del libro que quieres buscar ");
         var libroBuscado = teclado.nextLine();
-        String json = consumoApi.obtenerDatos(URL_BASE + "?search=" + libroBuscado.replace(" ", "+"));
+        var libroChequeado = libroBuscado;
+
+        boolean tieneCaracteresEspeciales= checkSpecialCharacters(libroBuscado);
+
+        if (tieneCaracteresEspeciales == true){
+                libroChequeado= "npsel";
+        }
+
+        String json = consumoApi.obtenerDatos(URL_BASE + "?search=" + libroChequeado.replace(" ", "+"));
         System.out.println("DATOS Json----> " + json);
         var datosBusqueda = conversor.obtenerDatos(json, DatosBiblioteca.class);
         return datosBusqueda.listaLibros().stream()
@@ -109,13 +115,15 @@ public  class Principal {
                 .orElse(null);
     }
 
+//    1. VALIDA LOS DATOS DE INGRESO Y ESCRIBE LIBRO EN LA BASE DE DATOS
+
     public void escribeLibroWeb() {
         DatosLibros datos = getDatosLibros();
 
         System.out.println("DATOS DE LIBROS ---->" + datos);
 
         if (datos == null) {
-            System.out.println("El libro no existe en Gutendex ");
+            System.out.println("El libro no existe en Gutendex. Por favor revise que el nombre no tenga caracteres especiales ");
             return;
         }
         List<Autor> autores = datos.autor().stream()
@@ -136,34 +144,78 @@ public  class Principal {
             libro.setAutor(autores.get(0));
 //            libro.setAutor(autores.get(0))
             libroRepository.save(libro);
-            System.out.println("EL LIBRO GUARDADO EN LA BASE DE DATOS ES: " + datos);
+            System.out.println("LIBRO GUARDADO EN LA BASE DE DATOS ES: " + datos);
 
 
         } catch(DataIntegrityViolationException e) {
             System.out.println("""
-                                        
+                       
                        ¡EL LIBRO  YA ESTA REGISTRADO EN LA BD!:
-                   
-                    """+datos);
+                       """+datos);
         }
     }
-
+//     2. CONSULTA TODOS LOS LIBROS DE LA BASE DE DATOS
     private void consultaLIbrosDeLaDB(){
 
         List<Libro> todosLosLibros = libroRepository.findAll();
 
-//            todosLosLibros.stream()
-//                .sorted(Comparator.comparing(Libro::toString))
-//                .forEach(System.out::println);
         System.out.println("\n\n LIBROS DE LA BASE DE DATOS: \n");
             todosLosLibros.forEach(s -> System.out.println(
                     """ 
-                    Titulo : %s - Autor: %s  -Idiomas: %s  -Descargas %s  -Descripción:  %s   
+                    TÍTULO : %s - %s-Idiomas: %s  -Descargas %s  -Descripción:  %s   
                     """.formatted( s.getTitulo(), s.getAutor(), s.getLenguaje(), s.getNumeroDeDescarga(), s.getDetallesLibro()
                         )));
     }
 
-    private void ConsultaAutoresDeLaBD(){
+//    3. BUSCA LIBROS POR IDIOMAS, DE LA BASE DE DATOS
+
+    private void buscarIdioma(){
+
+        try {
+            System.out.println("Por favor digita el idioma de los libros que desea consultar :");
+
+            var idioma = teclado.nextLine();
+            var language = Language.fromTotalString(idioma.toLowerCase());
+
+            Long cantidadLibrosPorIdioma = libroRepository.contarLibrosPorLenguaje(language);
+            System.out.println("\n\n CANTIDAD DE LIBROS EN " + idioma + " : " + cantidadLibrosPorIdioma + "\n\n");
+
+            List<Libro> idiomaLibros = libroRepository.findByLenguaje(language);
+            System.out.println("\n\n TITULOS DE LOS  LIBROS EN " + idioma + " REGISTRADOS EN LA BASE DE DATOS:");
+            idiomaLibros.forEach(libro -> System.out.println(" - " + libro.getTitulo()));
+
+        } catch (IllegalArgumentException e) {
+            System.out.println("NO SE ENCUENTRA EL IDIOMA  ESCOGIDO: ");
+        }
+    }
+
+    //    4. TOP DESCARGAS DE LA BASE DE DATOS
+    private void topDescargas() {
+
+        List<Libro> topLibros = libroRepository.findTop10ByOrderByNumeroDeDescargaDesc();
+
+        System.out.println("                     LIBROS MAS DESCARGADOS\n\n");
+        System.out.println(("    TITULO           DESCARGAS"));
+        topLibros.forEach(s -> System.out.println(
+                """
+                %S  - %s
+                """
+                        .formatted(s.getTitulo(), s.getNumeroDeDescarga())));
+    }
+
+    //    5. CONSULTA LAS DESCRIPCIONES DE LOS LIBROS DE LA BASE DE DATOS
+    private void descripcionLlibros(){
+        List<Libro> descripcion =libroRepository.findAll();
+        System.out.println("\n\n      DESCRIPCION DE LOS LIBROS\n\n");
+        descripcion.forEach(s->
+                System.out.println(
+                        """
+                        %s  -  %s
+                        """.formatted(s.getTitulo(), s.getDetallesLibro())));
+    }
+
+//    6. CONSULTA AUTORES DE LA BASE DE DATOS
+    private void consultaAutoresDeLaBD(){
 
      // List<Autor> autores = autorRepository.findAll();
         List<Autor> autores = autorRepository.findAllAutorWithLibro();
@@ -174,77 +226,53 @@ public  class Principal {
                 .forEach(System.out::println);
     }
 
+//    7. CONSULTA LIBROS POR AUTOR, DE LA BASE DE DATOS
+    private void consultaLibrosPorAutor(){
 
+        System.out.println("Ingresa el nombre del author a encontrar: ");
+        var nombre= teclado.nextLine();
 
-    private void BuscarPorAutor(){
+        Long idAutor = autorRepository.findNombreAutor(nombre);
 
-//        System.out.println("Ingresa el nombre del author a encontrar: ");
-//        var nameAuthor = lectura.nextLine();
-//        Optional<Author> author = authorRepository.findAuthors(nameAuthor);
-//        if (author.isPresent()) {
-//            Author foundAuthor = author.get();
-//            System.out.println(formatAuthor(foundAuthor));
-//        } else {
-//            System.out.println("No se encontró ningún resultado para el autor: " + nameAuthor);
-//        }
+        if (idAutor == null){
+            System.out.println("El autor no se encuentra en la base de datos. Por favor intente de nuevo");
 
+        }else{
+
+            List<Libro> librosAutor = libroRepository.findLibrosByAutorId(idAutor);
+
+            System.out.println("\n\n LIBROS DE " + nombre +" \n");
+            librosAutor.forEach(s -> System.out.println(
+                    """ 
+                    TÍTULO : %s - %s-Idiomas: %s  -Descargas %s  -Descripción:  %s   
+                    """.formatted( s.getTitulo(), s.getAutor(), s.getLenguaje(), s.getNumeroDeDescarga(), s.getDetallesLibro()
+                    )));
+        }
     }
 
-    private void buscarIdioma(){
-
-       System.out.println("Por favor digita el idioma de los libros que desea consultar :");
-       var idioma = teclado.nextLine();
-       var language =  Language.fromTotalString(idioma.toLowerCase());
-
-       Long cantidadLibrosPorIdioma = libroRepository.contarLibrosPorLenguaje(language);
-       System.out.println("\n\n CANTIDAD DE LIBROS EN " + idioma + " : " + cantidadLibrosPorIdioma +"\n\n");
-
-       List<Libro> idiomaLibros = libroRepository.findByLenguaje(language);
-       System.out.println("\n\n TITULOS DE LOS  LIBROS EN " + idioma + " REGISTRADOS EN LA BASE DE DATOS:");
-       idiomaLibros.forEach(libro -> System.out.println(" - "+libro.getTitulo()));
-    }
-
-    private void AutoresVivosEnAño(){
+//    8. CONSULTA AUTORES QUE VIVIERON EN UN AÑO DETERMINADO, DE LA BASE DE DATOS
+    private void findAutoresByAnio()   {
         System.out.println(" Para ver los autores vivos, por favor digita el año:  ");
         var anioBuscado = teclado.nextInt();
         teclado.nextLine();
-
-        //List<Autor> autoresVivos = autorRepository.autoresVivosEnAño(busquePorFecha);
-
-        //List<Autor> autoresVivos = autorRepository.findByAnioNacimientoLessThanEqualOrAnioFallecimientoGreaterThanEqual(busquePorFecha);
-
-       // List<Autor> autoresVivos = autorRepository. findBetweenAnioNacimientoAndAnioFallecimiento(busquePorFecha);
 
         List<Autor> autoresVivos= autorRepository.findAutoresByAnio(anioBuscado);
 
         System.out.println("\n\nAUTORES VIVOS EN "+ anioBuscado);
         autoresVivos.forEach(s-> System.out.println(
                 """
-                 %s - Fecha nacimiento: %s  - Fecha fallecimiento: %s               
+                 %s - Fecha nacimiento: %s  - Fecha fallecimiento: %s
                 """
                   .formatted(s.getNombreAutor(), s.getAnioNacimiento(), s.getAnioFallecimiento())
         ));
     }
 
-    private void topDescargas() {
+//    B. SERVICIO: CHEQUEA CARACTERES ESPECIALES
+    private boolean checkSpecialCharacters(String texto){
 
-        List<Libro> topLibros = libroRepository.findTop10ByOrderByNumeroDeDescargaDesc();
-        topLibros.forEach(s -> System.out.println(
-                """
-                
-                %S  - DESCARGAS: %s                
-                """
-                    .formatted(s.getTitulo(), s.getNumeroDeDescarga())));
-    }
-
-    private void descripcionLlibros(){
-        List<Libro> descripcion =libroRepository.findAll();
-
-        descripcion.forEach(s->
-                System.out.println(
-                """ 
-                    
-                    LIBRO: %s  -  %s
-                   """.formatted(s.getTitulo(), s.getDetallesLibro())));
+        Pattern pattern = Pattern.compile( "«\\¿+|\\?+|\\°+|\\¬+|\\|+|\\!+|\\#+|\\$+|\\%+|\\&+|\\+|\\=+|\\’+|\\¡+|\\++|\\*+|\\~+|\\[+|\\]+|\\{+|\\}+|\\^+|\\<+|\\>»" );
+        Matcher matcher = pattern.matcher(texto);
+        boolean caracteresEspeciales = matcher.find();
+        return(caracteresEspeciales);
     }
 }

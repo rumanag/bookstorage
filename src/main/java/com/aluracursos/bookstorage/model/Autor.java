@@ -1,7 +1,6 @@
 package com.aluracursos.bookstorage.model;
 
 import jakarta.persistence.*;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,12 +19,6 @@ public class Autor {
     @OneToMany(mappedBy = "autor")
     private List<Libro> libro = new ArrayList<>();
 
-
-
-
-//    @OneToMany(fetch = FetchType.EAGER)
-//    private List<Libro> librosDelAutor = new ArrayList<>();
-
     public Autor(){
     }
 
@@ -33,9 +26,7 @@ public class Autor {
         this.nombreAutor = datosAutor.nombreAutor();
         this.anioNacimiento = datosAutor.anioNacimiento();
         this.anioFallecimiento= datosAutor.anioFallecimiento();
-
     }
-
 
     public List<Libro> getLibro() {
         return libro;
@@ -73,18 +64,11 @@ public class Autor {
         this.nombreAutor = nombreAutor;
     }
 
-
-
     @Override
     public String toString() {
         return """
-                
-                NOMBRE DEL AUTOR      : %S
-                FECHA DE NACIMIENTO   : %S
-                FECHA D FALLECIMIENTO : %S        
-                
+                - %S -Nacimiento : %S -Fallecimiento : %S                       
                 """
-                .formatted(nombreAutor, anioNacimiento, anioFallecimiento);
-
+                   .formatted(nombreAutor, anioNacimiento, anioFallecimiento);
     }
 }

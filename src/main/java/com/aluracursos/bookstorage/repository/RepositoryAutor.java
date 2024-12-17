@@ -4,7 +4,6 @@ import com.aluracursos.bookstorage.model.Autor;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-
 import java.util.List;
 import java.util.Optional;
 
@@ -16,13 +15,11 @@ public interface RepositoryAutor extends JpaRepository<Autor, Long> {
     @Query("SELECT DISTINCT a FROM Autor a LEFT JOIN FETCH a.libro")
     List<Autor> findAllAutorWithLibro();
 
-   // @Query("SELECT a FROM LIBROS a LEFT JOIN FETCH a.libro WHERE a.nombreAutor = :nombreAutor")
-   // List<Autor> findLibrosPorAutor(String nombreAutor);
-
-
-
-    @Query("SELECT a FROM Autor a WHERE a.anioNacimiento <= :anioBuscado OR a.anioFallecimiento >= :anioBuscado")
+    @Query("SELECT a FROM Autor a WHERE a.anioNacimiento <= :anioBuscado AND a.anioFallecimiento >= :anioBuscado")
     List<Autor> findAutoresByAnio(@Param("anioBuscado") Integer anioBuscado);
+
+    @Query("SELECT a.id FROM Autor a WHERE a.nombreAutor ILIKE %:nombre%")
+    Long findNombreAutor(String nombre);
 }
 
 

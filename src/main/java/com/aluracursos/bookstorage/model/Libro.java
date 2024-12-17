@@ -2,9 +2,6 @@ package com.aluracursos.bookstorage.model;
 
 import jakarta.persistence.*;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @Entity
 @Table(name="libros")
 public class Libro {
@@ -27,21 +24,6 @@ public class Libro {
     @JoinColumn(name = "autor_id")
     private Autor autor;
 
-
-
-
-
-//    @ManyToMany(fetch = FetchType.EAGER, cascade = {CascadeType.MERGE})
-//    @ManyToMany(fetch = FetchType.EAGER, cascade = {CascadeType.MERGE})
-//    @JoinTable(
-//            name= "libro_autor",
-//            joinColumns = @JoinColumn(name = "libro_id"),
-//            inverseJoinColumns = @JoinColumn(name = "author_id")
-//    )
-//    private List<Autor> autor = new ArrayList<>();
-
-
-
     public Libro(){}
 
     public Libro(DatosLibros datosLibro){
@@ -56,7 +38,6 @@ public class Libro {
         this.detallesLibro = String.join(",", datosLibro.detallesLibro());
         this.numeroDeDescarga = datosLibro.numeroDescargas();
     }
-
 
     public Autor getAutor() {
         return autor;
@@ -86,34 +67,6 @@ public class Libro {
         return detallesLibro;
     }
 
-
-    public void setDetallesLibro(String detallesLibro) {
-        this.detallesLibro = detallesLibro;
-    }
-
-    public void setNumeroDeDescarga(Integer numeroDeDescarga) {
-        this.numeroDeDescarga = numeroDeDescarga;
-    }
-
-    public String getTemas() {
-        return temas;
-    }
-
-    public void setTemas(String temas) {
-        this.temas = temas;
-    }
-
-    public void setLenguaje(Language lenguaje) {
-        this.lenguaje = lenguaje;
-    }
-
-    public void setTitulo(String titulo) {
-        this.titulo = titulo;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
 
     @Override
     public String toString() {

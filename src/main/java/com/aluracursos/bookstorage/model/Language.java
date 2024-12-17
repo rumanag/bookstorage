@@ -20,13 +20,14 @@ public enum Language {
         }
 
         public static Language fromString(String text) {
+
             for (Language language: Language.values()) {
                 if (language.langLiter.equalsIgnoreCase(text)) {
                     return language;
                 }
             }
 
-            throw new IllegalArgumentException("Ninguna lenguaje encontrado: " + text);
+            throw new IllegalArgumentException();
         }
 
         public static Language fromTotalString(String text) {
@@ -36,6 +37,6 @@ public enum Language {
                     return language;
                 }
             }
-            throw new IllegalArgumentException("Ninguna lenguaje encontrado: " + text);
+            throw new IllegalArgumentException();
         }
     }
