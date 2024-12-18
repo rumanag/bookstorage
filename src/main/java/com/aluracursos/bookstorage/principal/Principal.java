@@ -11,6 +11,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import static java.lang.Integer.getInteger;
 import static java.lang.Integer.parseInt;
 
 public  class Principal {
@@ -32,11 +33,11 @@ public  class Principal {
 
     public void muestraElMenu() {
 
-        Integer opcion =-1;
+        var opcion =-1;
         while(opcion != 0){
-                System.out.println(
-                """
-                                            MENU DE OPCIONES
+
+            var menu = """
+                                          MENU DE OPCIONES
                 1. Busca el libro en el índice Gutembert y lo ingresa a la base de datos, si no está.
                 2. Consulta los libros de  la base de datos.
                 3. Consulta de libros por idioma, en la base de datos.
@@ -47,48 +48,48 @@ public  class Principal {
                 8. los autores vivos en un año específico.
 
                 0. Salir.
-                """);
+                """;
 
-
+            System.out.println(menu);
             var menuOpcion = teclado.nextLine();
 
             try {
-                opcion = parseInt(menuOpcion);
+                opcion = Integer.parseInt(menuOpcion.trim());
+
+                switch (opcion) {
+                    case 1:
+                        escribeLibroWeb();
+                        break;
+                    case 2:
+                        consultaLIbrosDeLaDB();
+                        break;
+                    case 3:
+                        buscarIdioma();
+                        break;
+                    case 4:
+                        topDescargas();
+                        break;
+                    case 5:
+                        descripcionLlibros();
+                        break;
+                    case 6:
+                        consultaAutoresDeLaBD();
+
+                        break;
+                    case 7:
+                        consultaLibrosPorAutor();
+                        break;
+                    case 8:
+                        findAutoresByAnio();
+                        break;
+                    case 0:
+                        break;
+                    default:
+                        System.out.println("DIGITÓ UNA OPCION INCORRECTA");
+                        break;
+                }
             }catch (NumberFormatException e){
                 System.out.println("´POR FAVOR INGRESE UN VALOR NUMERICO");
-            }
-
-            switch (opcion) {
-                case 1:
-                    escribeLibroWeb();
-                    break;
-                case 2:
-                    consultaLIbrosDeLaDB();
-                    break;
-                case 3:
-                     buscarIdioma();
-                     break;
-                case 4:
-                     topDescargas();
-                     break;
-                case 5:
-                     descripcionLlibros();
-                     break;
-                case 6:
-                    consultaAutoresDeLaBD();
-
-                     break;
-                case 7:
-                     consultaLibrosPorAutor();
-                     break;
-                case 8:
-                    findAutoresByAnio();
-                     break;
-                case 0:
-                     break;
-                default:
-                    System.out.println("DIGITÓ UNA OPCION INCORRECTA");
-                    break;
             }
         }
     }
@@ -253,18 +254,24 @@ public  class Principal {
 //    8. CONSULTA AUTORES QUE VIVIERON EN UN AÑO DETERMINADO, DE LA BASE DE DATOS
     private void findAutoresByAnio()   {
         System.out.println(" Para ver los autores vivos, por favor digita el año:  ");
-        var anioBuscado = teclado.nextInt();
-        teclado.nextLine();
 
-        List<Autor> autoresVivos= autorRepository.findAutoresByAnio(anioBuscado);
+        var anioDigitado = teclado.nextLine();
 
-        System.out.println("\n\nAUTORES VIVOS EN "+ anioBuscado);
-        autoresVivos.forEach(s-> System.out.println(
-                """
-                 %s - Fecha nacimiento: %s  - Fecha fallecimiento: %s
-                """
-                  .formatted(s.getNombreAutor(), s.getAnioNacimiento(), s.getAnioFallecimiento())
-        ));
+        try{
+            int anioBuscado = Integer.parseInt(anioDigitado.trim());
+            List<Autor> autoresVivos= autorRepository.findAutoresByAnio(anioBuscado);
+
+            System.out.println("\n\nAUTORES VIVOS EN "+ anioBuscado);
+            autoresVivos.forEach(s-> System.out.println(
+                    """
+                     %s - Fecha nacimiento: %s  - Fecha fallecimiento: %s
+                    """
+                            .formatted(s.getNombreAutor(), s.getAnioNacimiento(), s.getAnioFallecimiento())
+            ));
+
+        } catch (NumberFormatException e){
+            System.out.println("\nEL VALOR INGRESADO NO ES UN NÚMERO VÁLIDO. Por favor, intente de nuevo\n\n");
+        }
     }
 
 //    B. SERVICIO: CHEQUEA CARACTERES ESPECIALES
