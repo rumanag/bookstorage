@@ -4,7 +4,7 @@
 
 # BOOKSTORAGE PARA  UNA BOOK STORE   EN  LITERALURA
 #### Proyecto/Desafío de ALURA-LATAM y ORACLE-ONE en el curso Especializacion Back-End.
-         NOTA SOBRE EL ARCHIVO README: El documento intenta ser un "paper" de información                                       una información general para las personas que darle una
+         NOTA SOBRE EL ARCHIVO README: El documento intenta ser un "paper" de información
                                       general sobre el proyecto
 
 ## INTRODUCCCIÓN
