@@ -4,8 +4,9 @@
 
 # BOOKSTORAGE PARA  UNA BOOK STORE   EN  LITERALURA
 #### Proyecto/Desafío de ALURA-LATAM y ORACLE-ONE en el curso Especializacion Back-End.
-         NOTA SOBRE EL ARCHIVO README: El documento intenta ser un "paper" que presenta una información general para quien
-                                       quiera darle una mirada al proyecto.
+         NOTA SOBRE EL ARCHIVO README: El documento intenta ser un "paper" que presenta
+                                       una información general para quienquiera darle una
+                                       mirada al proyecto.
 
 
 
@@ -13,9 +14,9 @@
 
 El proyecto/desafío de LITERALURA fué concebido por Alura-Latam y Oracle-One para afianzar 
 el conocimiento de los estudiantes de la especialización back-end, particularmente
-en lo concerniente a "realizar solicitudes a una API de libros, a manipular datos JSON, 
+en lo concerniente a "... realizar solicitudes a una API de libros, a manipular datos JSON, 
 guardarlos en una base de datos y, finalmente, a filtrar y mostrar los libros y autores 
-de interés." Tal como lo plantearon los diseñadores del curso, en las tarjetas de Trello,
+de interés".  Tal como lo plantearon los diseñadores del curso, en las tarjetas de Trello,
 los objetivos particulares se centraron en  "... desarrollar un Catálogo de Libros que ofrezca 
 interacción textual (vía consola) con los usuarios, proporcionando al menos 5 opciones 
 de interacción. Los libros se buscarán a través de una API específica". 
@@ -54,9 +55,9 @@ al logro y su excelente funcionamiento organizacional.
    archivos XML, por lo cual Gutendex descarga estos archivos, los guarda en su base de datos y
    los publica en el formato sencillo de JSON (*traducción libre del sitio*).
    
-   Con la anterior informacion a mano, al ejecutar el programa el usuario  puede llevar
-   un registro personal , en su base de datos, de los libros y los autores que tiene disponible
-   en Guntex y, por supuesto, en el proyecto Gutemberg.
+   Con la anterior informacion a mano, el uso del programa desarrollado en ese proyecto 
+   permite que el usuario  puede llevar un registro personal , en su base de datos, de los 
+   libros y los autores que tiene disponible en Guntex y, por supuesto, en el proyecto Gutemberg.
    
 ### GUTENDEX
     
@@ -166,6 +167,9 @@ al logro y su excelente funcionamiento organizacional.
 
    - Requisitos de hardware: Computador con 4gb de memoria ram, y windows compatible con 
      java 17.012 o superior.
+   -  En el código notarán una escaséz de comentarios y  anotaciones ya que se ha intentado que toda 
+      palabra describa su funcionamiento en el contexto. Esto hace el código más limpio y fácil de 
+      mantener.
    -  Esta es la versión 1.0 18/12/2024, y  no cuenta con derechos reservados de algún tipo.
    -  Este proyecto está alojado en el repositorio de GitHub en
       https://github.com/rumanag/bookstorage.git
